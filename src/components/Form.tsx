@@ -1,13 +1,22 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, Dispatch, FormEvent, useState } from "react";
 import { categories } from "../data/categories";
-import { Activity } from "../types";
+import { ActivityActions } from "../reducers/activity-reducer";
+import type { Activity } from "../types";
 
-export default function Form() {
-	const [activity, setActivity] = useState<Activity>({
+type FormProps = {
+    dispatch: Dispatch<ActivityActions>
+}
+
+export default function Form({dispatch}: FormProps) {
+	
+    const initialState:Activity= {
+        id: crypto.randomUUID(),
 		category: 1,
 		name: "",
 		calories: 0,
-	});
+	}
+
+    const [activity, setActivity] = useState<Activity>(initialState);
 
 	const handleChange = (
 		e:
@@ -17,8 +26,6 @@ export default function Form() {
 		const isNumberFiel = ["category", "calories"].includes(
 			e.target.id
 		);
-
-		console.log(isNumberFiel);
 
 		setActivity({
 			...activity,
@@ -33,8 +40,14 @@ export default function Form() {
 		return name.trim() !== "" && calories > 0;
 	};
 
+    const handleSubmit = (e: FormEvent<HTMLFormElement>)=> {
+        e.preventDefault()
+        dispatch({type: 'save-activity', payload: {newActivity: activity}})
+        setActivity(initialState)
+    }
+
 	return (
-		<form className="p-10 space-y-5 bg-white rounded-lg shadow">
+		<form className="p-10 space-y-5 bg-white rounded-lg shadow" onSubmit={handleSubmit}>
 			<div className="grid grid-cols-1 gap-3">
 				<label htmlFor="category">Categoria:</label>
 				<select
